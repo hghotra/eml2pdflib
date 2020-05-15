@@ -1,7 +1,7 @@
 TEMPDIR := $(shell mktemp -t tmp.XXXXXX -d)
 FLAKE8 := $(shell which flake8)
 UNAME := $(shell uname)
-DOCKERTAG = andrewferrier/email2pdf
+DOCKERTAG = hghotra/email2pdflib
 
 determineversion:
 	$(eval GITDESCRIBE := $(shell git describe --dirty))
@@ -42,27 +42,3 @@ rundocker_testing: builddocker
 
 rundocker_getdebs: builddocker
 	docker run --rm -v ${PWD}:/debs $(DOCKERTAG) sh -c 'cp /tmp/*.deb /debs'
-
-unittest:
-	python3 -m unittest discover
-
-unittest_verbose:
-	python3 -m unittest discover -f -v
-
-analysis:
-	# Debian version is badly packaged, make sure we are using Python 3.
-	-/usr/bin/env python3 $(FLAKE8) --max-line-length=132 email2pdf tests/
-	pylint -r n --disable=line-too-long --disable=missing-docstring --disable=locally-disabled email2pdf tests/
-
-coverage:
-	rm -rf cover/
-	nosetests tests/Direct/*.py --with-coverage --cover-package=email2pdf,tests --cover-erase --cover-html --cover-branches
-	open cover/index.html
-
-.email2pdf.profile: email2pdf
-	python3 -m cProfile -o .email2pdf.profile `which nosetests` .
-
-profile: .email2pdf.profile
-	python3 performance/printstats.py | less
-
-alltests: unittest analysis coverage
