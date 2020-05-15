@@ -2,15 +2,9 @@
 
 An `eml` to `pdf` conversion helper library built by refactoring the `email2pdf` script by *Andrew Ferrier* that can be found here: https://github.com/andrewferrier/email2pdf
 
-### Running (Docker Container)
-```
-make builddocker
-make rundocker_interactive
-```
-
 ## Installing Dependencies
 
-Before you can use email2pdf, you need to install some dependencies. The
+Before you can use `email2pdflib`, you need to install some dependencies. The
 instructions here are split out by platform:
 
 ### Debian/Ubuntu
@@ -48,3 +42,59 @@ instructions here are split out by platform:
 * `brew install libmagic`
 
 * `pip3 install -r requirements.txt`
+
+## Usage
+
+Please look at the `test.py` for an example of how to use the library.
+
+```
+import imaplib
+import email
+import os
+from lib.eml2html import EmailtoHtml
+from lib.html2pdf import HtmltoPdf
+
+EMAIL_ADDRESS = os.environ['EMAIL_ADDRESS']
+EMAIL_PSWD = os.environ['EMAIL_PSWD']
+EMAIL_MAILBOX = os.environ['EMAIL_MAILBOX']
+IMAP_SERVER = os.environ['IMAP_SERVER']
+
+
+class EmailHelper(object):
+    def __init__(self, IMAP_SERVER, EMAIL_ADDRESS,
+                 EMAIL_PSWD, EMAIL_MAILBOX):
+        # logs in to the desired account and navigates to the inbox
+        self.mail = imaplib.IMAP4_SSL(IMAP_SERVER)
+        self.mail.login(EMAIL_ADDRESS, EMAIL_PSWD)
+        self.mail.select()
+
+    def get_emails(self):
+        uids = self.mail.uid('SEARCH', 'ALL')[1][0].split()
+        return uids
+
+    def get_email_message(self, email_id):
+        _, data = self.mail.uid('FETCH', email_id, '(RFC822)')
+        raw_email = data[0][1]
+        raw_email_string = raw_email.decode('utf-8')
+        email_message = email.message_from_string(raw_email_string)
+        return email_message
+
+
+email_helper = EmailHelper(IMAP_SERVER, EMAIL_ADDRESS,
+                           EMAIL_PSWD, EMAIL_MAILBOX)
+email_to_html_convertor = EmailtoHtml()
+html_to_pdf_convertor = HtmltoPdf()
+uids = email_helper.get_emails()
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+output_dir = os.path.join(dir_path, "pdfs")
+
+for uid in uids:
+    email_message = email_helper.get_email_message(uid)
+    html = email_to_html_convertor.convert(email_message)
+    filename = uid.decode() + ".pdf"
+    pdf_path = html_to_pdf_convertor.save_pdf(
+        html.encode(), output_dir, filename)
+    print(pdf_path)
+
+```
