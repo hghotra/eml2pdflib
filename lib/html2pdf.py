@@ -20,7 +20,7 @@ class HtmltoPdf(object):
                 "eml2pdflib requires wkhtmltopdf to be installed"
                 "Please look at the README.md for more info")
 
-    def output_body_pdf(self, html, output_dir, pdfname):
+    def save_pdf(self, html, output_dir, pdfname):
         if not os.path.exists(output_dir):
             raise FatalException("output_path does not exist")
 
@@ -68,6 +68,5 @@ class HtmltoPdf(object):
                                  str(ret_code) +
                                  ", stripped error: " + stripped_error)
         elif stripped_error != '':
-            raise FatalException(
-                "wkhtmltopdf exited with rc = 0 but produced \
+            print("wkhtmltopdf exited with rc = 0 but produced \
                     unknown stripped error output " + stripped_error)

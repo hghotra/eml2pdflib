@@ -5,7 +5,7 @@ import re
 import sys
 import magic
 from bs4 import BeautifulSoup
-from email2pdflib import utils
+from lib import utils
 from email.header import decode_header
 from lib.fatal_exception import FatalException
 
@@ -38,8 +38,7 @@ class EmailtoHtml(object):
 
         part = self.__part_by_content_type(self.eml, "text/plain")
         if part is not None:
-            payload = self.__handle_plain_message_body(part)
-            return (payload, set())
+            return self.__handle_plain_message_body(part)
 
         raise FatalException("Email message has no body")
 
@@ -112,9 +111,10 @@ class EmailtoHtml(object):
             image_decoded = image_part.get_payload(decode=True)
             mime_type = self.__get_mime_type(image_decoded)
             return "data:" + mime_type + ";base64," + image_base64
-        else:
-            raise FatalException(
-                "Could not find image cid " + cid + " in email content.")
+        # else:
+        #     raise FatalException(
+        #         "Could not find image cid " + cid + " in email content.")
+        return ""
 
     def __get_mime_type(self, buffer_data):
         # pylint: disable=no-member
