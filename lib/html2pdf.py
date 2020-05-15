@@ -2,7 +2,7 @@ import os
 import re
 import shutil
 from subprocess import Popen, PIPE
-from fatal_exception import FatalException
+from lib.fatal_exception import FatalException
 
 WKHTMLTOPDF_EXTERNAL_COMMAND = 'wkhtmltopdf'
 WKHTMLTOPDF_ERRORS_IGNORE = frozenset(
@@ -36,6 +36,7 @@ class HtmltoPdf(object):
         ret_code = wkh2p_process.returncode
         assert output == b''
         self.__process_errors(ret_code, error)
+        return output_path
 
     def __get_unique_version(self, filename):
         # From here: http://stackoverflow.com/q/183480/27641

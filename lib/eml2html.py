@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import functools
 import html
 import mimetypes
@@ -7,9 +5,9 @@ import re
 import sys
 import magic
 from bs4 import BeautifulSoup
-from utils import can_url_fetch
+from email2pdflib import utils
 from email.header import decode_header
-from fatal_exception import FatalException
+from lib.fatal_exception import FatalException
 
 assert sys.version_info >= (3, 4)
 
@@ -171,7 +169,7 @@ class EmailtoHtml(object):
                             found_blacklist = True
 
                     if not found_blacklist:
-                        if not can_url_fetch(src):
+                        if not utils.can_url_fetch(src):
                             del img['src']
                     else:
                         del img['src']
