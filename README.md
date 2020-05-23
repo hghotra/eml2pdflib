@@ -98,3 +98,4 @@ for uid in uids:
     print(pdf_path)
 
 ```
+If you get the error that libmagic isn't installed, install homebrew and try brew install libmagic
