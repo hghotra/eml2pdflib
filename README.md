@@ -106,3 +106,4 @@ for uid in uids:
         html.encode(), output_dir, filename)
     print(pdf_path)
 ```
+If you get the error that libmagic isn't installed, install homebrew and try brew install libmagic
