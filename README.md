@@ -1,6 +1,7 @@
 # email2pdflib
 
 An `eml` to `pdf` conversion helper library built by refactoring the `email2pdf` script by *Andrew Ferrier* that can be found here: https://github.com/andrewferrier/email2pdf
+Also, it can also convert eml messages to jpg images.
 
 ## Installing Dependencies
 
@@ -12,7 +13,7 @@ instructions here are split out by platform:
 * [wkhtmltopdf](http://wkhtmltopdf.org/) - Install the `.deb` from
   http://wkhtmltopdf.org/ rather than using apt-get to minimise the
   dependencies you need to install (in particular, to avoid needing a package
-  manager).
+  manager). This also install wkhtmltoimage
 
 * [getmail](http://pyropus.ca/software/getmail/) - getmail is optional, but it
   works well as a companion to email2pdf. Install using `apt-get install
@@ -25,7 +26,7 @@ instructions here are split out by platform:
 ### OS X
 
 * [wkhtmltopdf](http://wkhtmltopdf.org/) - Install the package from
-  http://wkhtmltopdf.org/downloads.html.
+  http://wkhtmltopdf.org/downloads.html. This also installs wkhtmltoimage
 
 * [getmail](http://pyropus.ca/software/getmail/) - TODO: This hasn't been
   tested, so there are no instructions here yet! Note that getmail is
@@ -53,6 +54,7 @@ import email
 import os
 from lib.eml2html import EmailtoHtml
 from lib.html2pdf import HtmltoPdf
+from lib.html2img import HtmltoImage
 
 EMAIL_ADDRESS = os.environ['EMAIL_ADDRESS']
 EMAIL_PSWD = os.environ['EMAIL_PSWD']
@@ -84,17 +86,23 @@ email_helper = EmailHelper(IMAP_SERVER, EMAIL_ADDRESS,
                            EMAIL_PSWD, EMAIL_MAILBOX)
 email_to_html_convertor = EmailtoHtml()
 html_to_pdf_convertor = HtmltoPdf()
+html_to_img_convertor = HtmltoImage()
 uids = email_helper.get_emails()
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-output_dir = os.path.join(dir_path, "pdfs")
+output_dir = os.path.join(dir_path, "outputs")
 
 for uid in uids:
     email_message = email_helper.get_email_message(uid)
     html = email_to_html_convertor.convert(email_message)
+
+    filename = uid.decode() + ".jpg"
+    img_path = html_to_img_convertor.save_img(
+        html.encode(), output_dir, filename)
+    print(img_path)
+
     filename = uid.decode() + ".pdf"
     pdf_path = html_to_pdf_convertor.save_pdf(
         html.encode(), output_dir, filename)
     print(pdf_path)
-
 ```
