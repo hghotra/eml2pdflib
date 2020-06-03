@@ -3,6 +3,7 @@ import email
 import os
 from lib.eml2html import EmailtoHtml
 from lib.html2pdf import HtmltoPdf
+from lib.html2img import HtmltoImage
 
 EMAIL_ADDRESS = os.environ['EMAIL_ADDRESS']
 EMAIL_PSWD = os.environ['EMAIL_PSWD']
@@ -34,14 +35,21 @@ email_helper = EmailHelper(IMAP_SERVER, EMAIL_ADDRESS,
                            EMAIL_PSWD, EMAIL_MAILBOX)
 email_to_html_convertor = EmailtoHtml()
 html_to_pdf_convertor = HtmltoPdf()
+html_to_img_convertor = HtmltoImage()
 uids = email_helper.get_emails()
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-output_dir = os.path.join(dir_path, "pdfs")
+output_dir = os.path.join(dir_path, "outputs")
 
 for uid in uids:
     email_message = email_helper.get_email_message(uid)
     html = email_to_html_convertor.convert(email_message)
+
+    filename = uid.decode() + ".jpg"
+    img_path = html_to_img_convertor.save_img(
+        html.encode(), output_dir, filename)
+    print(img_path)
+
     filename = uid.decode() + ".pdf"
     pdf_path = html_to_pdf_convertor.save_pdf(
         html.encode(), output_dir, filename)
